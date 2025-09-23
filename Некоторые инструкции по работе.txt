@@ -1,0 +1,34 @@
+Тестирование API:
+
+Список задач: Откройте браузер и перейдите по адресу http://localhost:8000/tasks.  Вы должны увидеть пустой JSON-массив ([]), если задач еще нет.
+Создание задачи: Используйте curl или Postman (или Advanced REST Client для Chrome) для отправки POST-запроса на http://localhost:8000/tasks с JSON-данными. Пример с curl:
+Окно bash
+
+curl -X POST -H "Content-Type: application/json" -d '{"title": "Grocery Shopping", "description": "Buy milk, eggs, and bread", "status": "pending"}' http://localhost:8000/tasks
+Просмотр одной задачи:  После создания задачи получите ее ID из ответа и выполните GET-запрос на http://localhost:8000/tasks/{id}.  Например, если ID задачи 1:
+
+
+В окне bash
+
+curl http://localhost:8000/tasks/1
+Обновление задачи:
+
+
+Через окно bash
+
+curl -X PUT -H "Content-Type: application/json" -d '{"title": "Updated Task", "description": "Updated Description", "status": "completed"}' http://localhost:8000/tasks/1
+
+Т.е. отправляется PUT метод
+
+Удаление задачи:
+В окне bash
+curl -X DELETE http://localhost:8000/tasks/1
+
+
+Некоторые замечания:
+
+Аутентификация и авторизация для защиты API.
+Логирование.
+Убедитесь, что у вас включено расширение SQLite3 для PHP. В файле php.ini раскомментируйте строку extension=sqlite3.
+
+Этот подробный гайд позволит вам установить Git на Windows, создать проект PHP API, 
