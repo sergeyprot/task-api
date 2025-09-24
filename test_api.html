@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <form id="taskForm">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title"><br><br>
+
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description"></textarea><br><br>
+
+        <label for="status">Status:</label><br>
+        <select id="status" name="status">
+            <option value="todo">Todo</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+        </select><br><br>
+
+        <button type="submit">Create Task (POST)</button>
+    </form>
+
+    <h2>Response:</h2>
+    <pre id="response"></pre>
+
+    <script>
+        document.getElementById('taskForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Предотвращаем стандартную отправку формы
+
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const status = document.getElementById('status').value;
+
+            const taskData = {
+                title: title,
+                description: description,
+                status: status
+            };
+
+            try {
+                const response = await fetch('http://localhost/index.php', {
+                    method: 'POST', // Метод POST
+                    headers: {
+                        'Content-Type': 'application/json' // Указываем, что отправляем JSON
+                    },
+                    body: JSON.stringify(taskData) // Преобразуем объект в JSON-строку
+                });
+
+                const data = await response.json(); // Парсим ответ как JSON
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2); // Отображаем ответ
+
+                if (response.ok) {
+                    // Опционально: обновить список задач или очистить форму
+                    alert('Задача создана!');
+                } else {
+                    alert('Ошибка при создании задачи!');
+                }
+
+            } catch (error) {
+                document.getElementById('response').textContent = JSON.stringify({ error: error.message }, null, 2);
+                alert('Произошла ошибка сети!');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -4,15 +4,15 @@ require_once 'config.php';
 require_once 'database.php';
 require_once 'models/Task.php';
 
-// Enable CORS
+// Включить CORS Обязательно прочитать некоторые инструкции что в корне.
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type");
-header('Content-Type: application/json'); // Always return JSON
+header('Content-Type: application/json'); // Всегда возвращайте JSON
 
 $db = Database::getConnection();
 
-// Ensure the tasks table exists
+// Убедитесь, что таблица задач существует
 $db->exec("CREATE TABLE IF NOT EXISTS tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
@@ -25,18 +25,18 @@ $request_uri = $_SERVER['REQUEST_URI'];
 $path = parse_url($request_uri, PHP_URL_PATH);
 $segments = explode('/', trim($path, '/'));
 
-// Remove the script name from segments if present
+// Удалить имя скрипта из сегментов, если оно есть.
 if (isset($segments[0]) && $segments[0] === basename(__FILE__)) {
   array_shift($segments);
 }
 
-$resource = $segments[0] ?? null; // e.g., "tasks"
+$resource = $segments[0] ?? null; // e.g., "задачи"
 $id = $segments[1] ?? null; // e.g., "123"
 
-// Sanitize ID if present
+//  обработка ID, если есть
 if ($id !== null && !ctype_digit($id)) {
-    http_response_code(400); // Bad Request
-    echo json_encode(['message' => 'Invalid task ID.']);
+    http_response_code(400); // Плохой запрос
+    echo json_encode(['message' => 'Не правильный задачный ID.']);
     exit;
 }
 
@@ -50,7 +50,7 @@ switch ($request_method) {
             }
         } else {
             http_response_code(404);
-            echo json_encode(['message' => 'Resource not found.']);
+            echo json_encode(['message' => 'Ресурс не найден.']);
         }
         break;
     case 'POST':
@@ -58,7 +58,7 @@ switch ($request_method) {
             createTask();
         } else {
             http_response_code(404);
-            echo json_encode(['message' => 'Resource not found.']);
+            echo json_encode(['message' => 'Ресурс не найден.']);
         }
         break;
     case 'PUT':
@@ -66,7 +66,7 @@ switch ($request_method) {
             updateTask($id);
         } else {
             http_response_code(404);
-            echo json_encode(['message' => 'Resource not found.']);
+            echo json_encode(['message' => 'Ресурс не найден.']);
         }
         break;
     case 'DELETE':
@@ -74,15 +74,10 @@ switch ($request_method) {
             deleteTask($id);
         } else {
             http_response_code(404);
-            echo json_encode(['message' => 'Resource not found.']);
+            echo json_encode(['message' => 'Ресурс не найден.']);
         }
         break;
-    case 'OPTIONS': // Handle preflight requests
-        http_response_code(200);
-        break;
-    default:
-        http_response_code(405); // Method Not Allowed
-        echo json_encode(['message' => 'Method not allowed.']);
+    
 }
 
 function getTasks() {
@@ -107,7 +102,7 @@ function getTask($id) {
         echo json_encode($task->toArray());
     } else {
         http_response_code(404);
-        echo json_encode(['message' => 'Task not found']);
+        echo json_encode(['message' => 'Taskненайдена']);
     }
 }
 
@@ -115,19 +110,19 @@ function createTask() {
     global $db;
     $input = json_decode(file_get_contents('php://input'), true); // Read from the bodyif (empty($input['title'])) {
     http_response_code(400);
-    echo json_encode(['message' => 'Title is required']);
+    echo json_encode(['message' => 'Title обязателен']);
     return;
 }
 
 if (strlen($input['title']) > 255) {
     http_response_code(400);
-    echo json_encode(['message' => 'Title cannot exceed 255 characters']);
+    echo json_encode(['message' => 'Title не можеи превышать 255']);
     return;
 }
 
 $title = $input['title'];
-$description = $input['description'] ?? ''; // Default to empty string if not provided
-$status = $input['status'] ?? 'pending';  // Default to "pending" if not provided
+$description = $input['description'] ?? ''; // По умолчанию пустой
+$status = $input['status'] ?? 'pending';  // По умолчанию пендинг статус
 
 $stmt = $db->prepare("INSERT INTO tasks (title, description, status) VALUES (:title, :description, :status)");
 $stmt->bindParam(':title', $title);
@@ -137,12 +132,12 @@ $stmt->bindParam(':status', $status);
 try {
     $stmt->execute();
     $taskId = $db->lastInsertId();
-    http_response_code(201); // Created
-    echo json_encode(['message' => 'Task created successfully', 'id' => $taskId]);
+    http_response_code(201); // Созданный
+    echo json_encode(['message' => 'Task создана успешно', 'id' => $taskId]);
 
 } catch (PDOException $e) {
-    http_response_code(500); // Internal Server Error
-    echo json_encode(['message' => 'Failed to create task: ' . $e->getMessage()]);
+    http_response_code(500); // Внутренняя сервеная ошибка
+    echo json_encode(['message' => 'Failed созаднная task: ' . $e->getMessage()]);
 }
 
             }
@@ -151,7 +146,7 @@ function updateTask($id) {
     global $db;
     $input = json_decode(file_get_contents('php://input'), true);if (empty($input['title'])) {
     http_response_code(400);
-    echo json_encode(['message' =&gt; 'Title is required']);
+    echo json_encode(['message' => 'Title обязателен']);
     return;
 }
 
@@ -160,19 +155,19 @@ $description = $input['description'] ?? '';
 $status = $input['status'] ?? 'pending';
 
 $stmt = $db-&gt;prepare("UPDATE tasks SET title = :title, description = :description, status = :status WHERE id = :id");
-$stmt-&gt;bindParam(':id', $id);
-$stmt-&gt;bindParam(':title', $title);
-$stmt-&gt;bindParam(':description', $description);
-$stmt-&gt;bindParam(':status', $status);
+$stmt->bindParam(':id', $id);
+$stmt->bindParam(':title', $title);
+$stmt->bindParam(':description', $description);
+$stmt->bindParam(':status', $status);
 
 try {
-    $stmt-&gt;execute();
+    $stmt->execute();
     http_response_code(200);
-    echo json_encode(['message' =&gt; 'Task updated successfully']);
+    echo json_encode(['message' => 'Task выполнена успешно']);
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['message' =&gt; 'Failed to update task: ' . $e-&gt;getMessage()]);
+    echo json_encode(['message' => 'Failed обновлениеtask: ' . $e->getMessage()]);
 }
 }
 
@@ -180,13 +175,13 @@ function deleteTask($id) {
     global $db;
     $stmt = $db->prepare("DELETE FROM tasks WHERE id = :id");
     $stmt->bindParam(':id', $id);try {
-    $stmt-&gt;execute();
+    $stmt->execute();
     http_response_code(200);
-    echo json_encode(['message' =&gt; 'Task deleted successfully']);
+    echo json_encode(['message' => 'Task уничтожена успешно']);
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['message' =&gt; 'Failed to delete task: ' . $e-&gt;getMessage()]);
+    echo json_encode(['message' => 'Failed убрана task: ' . $e->getMessage()]);
 }
 }
 
